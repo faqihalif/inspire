@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/breadcrumb"
 import { Skeleton } from "@/components/ui/skeleton"
 import DataTable from "@/components/ui/data-table"
+import { Button } from "@/components/ui/button"
 import useWindowSize from "@/hooks/use-window-size"
 import axios from "axios"
 
@@ -126,6 +127,9 @@ export default function Page() {
                     // approve={handleApproveDataTable}
                     // delete={handleDeleteDataTable}
                     >
+                        <Button onClick={() => console.log('clicked')}>
+                            Add Employee 2
+                        </Button>
                     </DataTable>
                 )
             }
