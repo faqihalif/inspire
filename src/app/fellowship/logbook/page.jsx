@@ -14,7 +14,7 @@ import {
 
 import { Download, Eye, Plus } from "lucide-react";
 
-export default function LogbookPage() {
+export default function Page() {
     const [logbookData, setLogbookData] = useState([
         {
             logbookName: "Logbook Patient",

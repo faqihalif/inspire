@@ -9,7 +9,7 @@ import { Badge } from "@/components/ui/badge";
 
 import { User, X } from "lucide-react";
 
-export default function ProfilePage() {
+export default function Page() {
     return (
         <div className="container p-4 mx-auto">
             {/* Personal Information Section */}

@@ -13,7 +13,7 @@ import {
     TableRow,
 } from "@/components/ui/table";
 
-export default function AttendancePage() {
+export default function Page() {
     const [attendanceData, setAttendanceData] = useState([
         {
             date: "2024-09-03",

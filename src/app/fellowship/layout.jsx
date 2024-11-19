@@ -8,7 +8,7 @@ import AppUserNav from "@/components/layout/fellowship/app-usernav";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { Separator } from "@/components/ui/separator";
 
-export default function FellowshipLayout({ children }) {
+export default function Layout({ children }) {
     const pathname = usePathname();
 
     const getPageTitle = () => {
