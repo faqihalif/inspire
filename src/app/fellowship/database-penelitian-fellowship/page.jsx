@@ -15,8 +15,6 @@ import { Button } from "@/components/ui/button";
 import useWindowSize from "@/hooks/use-window-size";
 import axios from "axios";
 
-import { Eye } from "lucide-react";
-
 export default function Page() {
   const [loading, setLoading] = useState(true);
   const [comments, setComments] = useState([]);
@@ -26,43 +24,65 @@ export default function Page() {
 
   const columns = [
     {
-      Header: () => "Logbook Name",
-      accessor: "body",
+      Header: () => "Nama",
+      accessor: "name",
       // width: 80
     },
     {
-      Header: () => "MR Number",
-      accessor: "postId",
+      Header: () => "Tahun",
+      accessor: "1",
+      Cell: ({ row }) => <p>2024</p>,
       // width: 1000
     },
     {
-      Header: () => "Patient Name   ",
-      accessor: "name",
+      Header: () => "Servis",
+      accessor: "servis",
+      Cell: ({ row }) => <p>Glaucoma Management</p>,
       // width: 'auto'
     },
     {
-      Header: () => "Supervising Doctor",
-      accessor: "email",
+      Header: () => "Juduk Makalah 1",
+      accessor: "body",
       // width: 'auto'
     },
     {
-      Header: () => "Date",
-      accessor: "date",
-      Cell: ({ row }) => <p>2024-10-21</p>,
-      // width: 'auto'
-    },
-    {
-      Header: () => "",
-      accessor: "email2",
-      disableSortBy: true,
-      showFilter: false,
+      Header: () => "Juduk Penelitian 1",
+      accessor: "jp1",
       Cell: ({ row }) => (
-        <Button variant="ghost" onClick={() => console.log("berhasil preview")}>
-          <Eye />
-        </Button>
-        // width: 'auto'
+        <p>
+          Vision Resilience Post-Trabeculectomy in Advanced Glaucoma Patients
+        </p>
       ),
+      // width: 'auto'
     },
+    {
+      Header: () => "Juduk Makalah 2",
+      accessor: "jk2",
+      Cell: ({ row }) => <p>-</p>,
+      // width: 'auto'
+    },
+    {
+      Header: () => "Juduk Penelitian 2",
+      accessor: "jp2e",
+      Cell: ({ row }) => (
+        <p>
+          PPT Vision Resilience Post-Trabeculectomy in Advanced Glaucoma
+          Patients
+        </p>
+      ),
+      // width: 'auto'
+    },
+    // {
+    //   Header: () => "",
+    //   accessor: "email2",
+    //   disableSortBy: true,
+    //   showFilter: false,
+    //   Cell: ({ row }) => (
+    //     <Button variant="ghost" onClick={() => console.log("berhasil preview")}>
+    //       <Eye />
+    //     </Button>
+    //   ),
+    // },
     {
       Header: () => "",
       accessor: "id",
@@ -96,7 +116,7 @@ export default function Page() {
       <Breadcrumb>
         <BreadcrumbList>
           <BreadcrumbItem>
-            <BreadcrumbPage>Logbook</BreadcrumbPage>
+            <BreadcrumbPage>Database Penelitian Fellowship</BreadcrumbPage>
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
@@ -126,7 +146,7 @@ export default function Page() {
           // approve={handleApproveDataTable}
           // delete={handleDeleteDataTable}
         >
-          <Button onClick={() => console.log("clicked")}>Create Logbook</Button>
+          {/* <Button onClick={() => console.log("clicked")}>Add </Button> */}
         </DataTable>
       )}
     </div>

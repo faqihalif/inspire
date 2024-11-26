@@ -26,7 +26,7 @@ export default function AppSidebar({ children }) {
         },
         {
             title: "Employee",
-            url: "/admin/employee",
+            url: "/admin/employees",
         },
         {
             title: "User Management",
@@ -58,6 +58,7 @@ export default function AppSidebar({ children }) {
                             alt="INSPIRE"
                             sizes="100vw"
                             style={{ width: 'auto', height: '64px' }}
+                            priority
                         />
                     </Link>
                 </SidebarMenuButton>

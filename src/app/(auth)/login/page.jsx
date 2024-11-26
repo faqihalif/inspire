@@ -1,5 +1,6 @@
 "use client"
 
+import React, { useState } from 'react'
 import Image from "next/image"
 import Link from "next/link"
 import { Input } from "@/components/ui/input"
@@ -8,8 +9,14 @@ import { Button } from "@/components/ui/button"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
+import axios from "axios"
+import { Loader2 } from "lucide-react"
+
+import { signIn } from "next-auth/react"
 
 export default function Page() {
+    const [submitLoading, setSubmitLoading] = useState(false)
+
     // validation
     const validation = z.object({
         email: z.string().email({
@@ -28,7 +35,8 @@ export default function Page() {
     })
 
     const onSubmit = (values) => {
-        console.log(values)
+        setSubmitLoading(true)
+        signIn("credentials", values)
     }
 
     return (
@@ -43,6 +51,7 @@ export default function Page() {
                             alt="INSPIRE"
                             sizes="100vw"
                             style={{ width: 'auto', height: '64px' }}
+                            priority
                         />
                     </Link>
                 </div>
@@ -83,7 +92,16 @@ export default function Page() {
                                 )}
                             />
                             <div className="flex justify-end">
-                                <Button type="submit">Login</Button>
+                                {
+                                    submitLoading ? (
+                                        <Button disabled>
+                                            <Loader2 className="animate-spin" />
+                                            Loading
+                                        </Button>
+                                    ) : (
+                                        <Button type="submit">Login</Button>
+                                    )
+                                }
                             </div>
                         </form>
                     </Form>

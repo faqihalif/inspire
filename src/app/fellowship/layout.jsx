@@ -11,21 +11,6 @@ import { Separator } from "@/components/ui/separator";
 export default function Layout({ children }) {
     const pathname = usePathname();
 
-    const getPageTitle = () => {
-        if (pathname === "/fellowship/my-profile") return "My Profile";
-        if (pathname === "/fellowship/timeline") return "Timeline";
-        if (pathname === "/fellowship/attendance") return "Attendance";
-        if (pathname === "/fellowship/paper") return "Paper";
-        if (pathname === "/fellowship/file") return "File";
-        if (pathname === "/fellowship/logbook") return "Logbook";
-        if (pathname === "/fellowship/database-penelitian-fellowship")
-            return "Database Penelitian Fellowship";
-        if (pathname === "/fellowship/library") return "Library";
-        if (pathname === "/fellowship/form-permintaan-data")
-            return "Form Permintaan Data";
-        return "Fellowship"; // Default title
-    };
-
     return (
         <SidebarProvider className="max-h-screen overflow-auto">
             <AppSidebar />
@@ -34,9 +19,7 @@ export default function Layout({ children }) {
                     <div className="flex items-center space-x-2 md:space-x-0">
                         <SidebarTrigger className="md:hidden" />
                         <Separator orientation="vertical" className="h-4 md:hidden" />
-                        <p className="pl-1 text-sm font-medium text-neutral-950">
-                            {getPageTitle()}
-                        </p>
+                        <p className="pl-1 text-sm font-medium md:pl-0 text-neutral-950">Hello, Fellowship</p>
                     </div>
                     <AppUserNav />
                 </div>

@@ -17,7 +17,7 @@ import axios from "axios"
 
 export default function Page() {
     const [loading, setLoading] = useState(true)
-    const [employee, setEmployee] = useState([])
+    const [employees, setEmployees] = useState([])
 
     // window size
     const windowSize = useWindowSize()
@@ -90,7 +90,7 @@ export default function Page() {
         axios.get('https://inforisdik.jec.co.id/api/employee')
             .then(response => {
                 setLoading(false)
-                return setEmployee(response.data)
+                return setEmployees(response.data)
             })
             .catch(err => {
                 console.log(err.response.data)
@@ -119,7 +119,7 @@ export default function Page() {
 
                     <DataTable
                         columns={columns}
-                        data={employee}
+                        data={employees}
                         download
                         filterPerColumn
                     // fixed

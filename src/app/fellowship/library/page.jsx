@@ -30,6 +30,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
 
 import useWindowSize from "@/hooks/use-window-size";
 import axios from "axios";
@@ -37,11 +38,10 @@ import { Eye } from "lucide-react";
 
 export default function Page() {
   const [loading, setLoading] = useState(true);
-  const [comments, setComments] = useState([]);
-
+  const [posts, setPosts] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const handleAddAttendanceClick = () => {
+  const handleAddBorrowingBookClick = () => {
     setIsModalOpen(true);
   };
 
@@ -54,26 +54,21 @@ export default function Page() {
 
   const columns = [
     {
-      Header: () => "Date",
-      accessor: "email",
+      Header: () => "Title Book",
+      accessor: "title",
       // width: 80
     },
     {
-      Header: () => "Hour",
-      accessor: "hour",
-      Cell: ({ row }) => <p>08:56</p>,
+      Header: () => "Borrowing Date",
+      accessor: "body",
       // width: 1000
     },
     {
-      Header: () => "Activity",
-      accessor: "body",
+      Header: () => "Returning Date",
+      accessor: "userId",
       // width: 'auto'
     },
-    {
-      Header: () => "Supervising Doctor",
-      accessor: "name",
-      // width: 'auto'
-    },
+
     {
       Header: () => "",
       accessor: "email2",
@@ -83,6 +78,7 @@ export default function Page() {
         <Button variant="ghost" onClick={() => console.log("berhasil preview")}>
           <Eye />
         </Button>
+        // width: 'auto'
       ),
     },
     {
@@ -98,10 +94,10 @@ export default function Page() {
 
   useEffect(() => {
     axios
-      .get("https://jsonplaceholder.typicode.com/comments")
+      .get("https://jsonplaceholder.typicode.com/posts")
       .then((response) => {
         setLoading(false);
-        return setComments(response.data);
+        return setPosts(response.data);
       })
       .catch((err) => {
         console.log(err.response.data);
@@ -118,7 +114,7 @@ export default function Page() {
       <Breadcrumb>
         <BreadcrumbList>
           <BreadcrumbItem>
-            <BreadcrumbPage>Attendance</BreadcrumbPage>
+            <BreadcrumbPage>Library</BreadcrumbPage>
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
@@ -140,7 +136,7 @@ export default function Page() {
       ) : (
         <DataTable
           columns={columns}
-          data={comments}
+          data={posts}
           download
           filterPerColumn
           // fixed
@@ -148,73 +144,38 @@ export default function Page() {
           // approve={handleApproveDataTable}
           // delete={handleDeleteDataTable}
         >
-          <Button onClick={handleAddAttendanceClick}>Add Attendance</Button>
+          <Button onClick={handleAddBorrowingBookClick}>
+            Create Borrowing Book
+          </Button>
         </DataTable>
       )}
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
-            <DialogTitle>Add Attendance</DialogTitle>
+            <DialogTitle>Create Borrowing Book</DialogTitle>
             <DialogDescription>
-              Fill out the form below to add attendance.
+              Fill out the form below to Create Borrowing Book
             </DialogDescription>
           </DialogHeader>
           <div className="grid gap-3 py-4">
             <div>
+              <Label htmlFor="address">Title Book</Label>
+              <Textarea id="address" />
+            </div>
+            <div>
+              <Label htmlFor="attachment">Attachment</Label>
+              <Input id="attachment" type="file" />
+            </div>
+            <div>
               <Label htmlFor="name">Date</Label>
               <Input disabled type="text" id="date" placeholder="01/01/2024" />
-            </div>
-            <div>
-              <Label htmlFor="name">Hour</Label>
-              <Input disabled type="text" id="date" placeholder="07:00" />
-            </div>
-            <div>
-              <Label htmlFor="program">Program</Label>
-              <Select>
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Select..." />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="program1">Poli JEC @Kedoya</SelectItem>
-                  <SelectItem value="program2">Poli JEC @Menteng</SelectItem>
-                  <SelectItem value="program2">Poli JEC @Cibubur</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div>
-              <Label htmlFor="picture">Picture</Label>
-              <Input id="picture" type="file" />
-            </div>
-            <div>
-              <Label htmlFor="supervising-doctor">Supervising Doctor</Label>
-              <Select>
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Select..." />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="supervising-doctor1">
-                    DR. Dr. Cosmos O. Mangunsong, SpM(K)
-                  </SelectItem>
-                  <SelectItem value="supervising-doctor2">
-                    {" "}
-                    Dr. Soedarman Sjamsoe, SpM(K)
-                  </SelectItem>
-                  <SelectItem value="supervising-doctor2">
-                    {" "}
-                    DR. Dr. Gitalisa Andayani, SpM(K)
-                  </SelectItem>
-                </SelectContent>
-              </Select>
             </div>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={handleCloseModal}>
               Cancel
             </Button>
-            <Button
-              type="submit"
-              onClick={() => console.log("Attendance saved!")}
-            >
+            <Button type="submit" onClick={() => console.log("Book saved!")}>
               Save
             </Button>
           </DialogFooter>

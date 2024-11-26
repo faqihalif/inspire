@@ -1,3 +1,8 @@
+"use client"
+
+import { useSession } from "next-auth/react"
+import { auth } from "@/auth"
+
 import {
     Avatar,
     AvatarFallback,
@@ -16,6 +21,9 @@ import {
 } from "@/components/ui/dropdown-menu"
 
 export default function AppUserNav() {
+    const { data } = useSession()
+    console.log(data)
+
     return (
         <DropdownMenu>
             <DropdownMenuTrigger asChild>
