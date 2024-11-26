@@ -1,339 +1,226 @@
-import React, { useState } from "react";
+import React, { useState, useCallback } from "react";
+
+// // Layout
+// import Fellowship from '@/Layout/Fellowship/Fellowship';
+
+// momentjs
+import moment from "moment";
+
+// React Big Calendar
 import { Calendar, momentLocalizer } from "react-big-calendar";
-import "react-big-calendar/lib/css/react-big-calendar.css";
-import moment from "@/lib/moment";
-import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogHeader,
-    DialogTitle,
-    DialogFooter,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from "@/components/ui/select";
-import { XIcon } from "lucide-react";
+import "@/styles/react-big-calendar.css";
 
-const CustomEvent = ({ event, onClick }) => {
-    return (
-        <React.Fragment>
-            {event.type === "Poli" ? (
-                event.present === "Hadir" ? (
-                    <p
-                        className="px-1 py-0.5 text-sm font-semibold text-white bg-green-600 rounded"
-                        onClick={() => onClick(event)}
-                    >
-                        {event.title}
-                    </p>
-                ) : event.present === "Cuti" || event.present === "Sakit" ? (
-                    <p
-                        className="px-1 py-0.5 text-sm font-semibold text-white bg-red-600 rounded"
-                        onClick={() => onClick(event)}
-                    >
-                        {event.title}
-                    </p>
-                ) : (
-                    <p
-                        className="px-1 py-0.5 text-sm font-semibold text-white bg-blue-900 rounded"
-                        onClick={() => onClick(event)}
-                    >
-                        {event.title}
-                    </p>
-                )
-            ) : event.type === "National Holiday" ? (
-                <p
-                    className="px-1 py-0.5 text-sm font-semibold text-white bg-red-600 rounded"
-                    onClick={() => onClick(event)}
-                >
-                    {event.title}
-                </p>
-            ) : (
-                <p
-                    className="px-1 py-0.5 text-sm font-semibold text-white bg-yellow-600 rounded"
-                    onClick={() => onClick(event)}
-                >
-                    {event.title}
-                </p>
-            )}
-        </React.Fragment>
-    );
-};
+import useWindowSize from "@/hooks/use-window-size";
 
-const Timeline = () => {
-    const [myEvents, setMyEvents] = useState([
-        {
-            title: "Event 1",
-            start: new Date(),
-            end: new Date(),
-            type: "Poli",
-            present: "Hadir",
-        },
-        {
-            title: "Event 2",
-            start: new Date(),
-            end: new Date(),
-            type: "Poli",
-            present: "Sakit",
-        },
-        {
-            title: "National Holiday",
-            start: new Date(),
-            end: new Date(),
-            type: "National Holiday",
-            present: "Hadir",
-        },
-    ]);
-    const [showDialog, setShowDialog] = useState(false);
-    const [selectedEvent, setSelectedEvent] = useState(null);
+// Components
+import EventCreateDialog from "./event-create-dialog";
+import EventEditDialog from "./event-edit-dialog";
 
-    const handleAddActivity = () => {
-        setSelectedEvent(null); // No event selected, add new activity
-        setShowDialog(true); // Open dialog for adding new activity
-    };
+const Timeline = (props) => {
+  // Dummy data for events and doctors
+  const dummyEvents = [
+    {
+      id: 1,
+      title: "Clinic",
+      type: "Poli",
+      supervising_doctor: "Dr. John Doe",
+      activity_photo: null,
+      present: "Hadir",
+      start: new Date("2024-11-26"),
+      end: new Date("2024-11-26"),
+    },
+    {
+      id: 2,
+      title: "Wetlab Training",
+      type: "Wetlab",
+      supervising_doctor: "Dr. Jane Smith",
+      activity_photo: null,
+      present: null,
+      start: new Date("2024-11-27"),
+      end: new Date("2024-11-27"),
+    },
+    {
+      id: 3,
+      title: "Wetlab Training",
+      type: "Wetlab",
+      supervising_doctor: "Dr. Jane Smith",
+      activity_photo: null,
+      present: null,
+      start: new Date("2024-11-27"),
+      end: new Date("2024-11-27"),
+    },
+  ];
+  const dummyDoctors = [
+    { value: "12345", label: "Dr. John Doe" },
+    { value: "67890", label: "Dr. Jane Smith" },
+  ];
 
-    const handleEventClick = (event) => {
-        setSelectedEvent(event); // Set selected event for editing
-        setShowDialog(true); // Open dialog for editing activity
-    };
+  // useState
+  const [myEvents, setMyEvents] = useState(dummyEvents);
+  const [event, setEvent] = useState({ start: "", end: "" });
+  const [doctors] = useState(dummyDoctors);
+  const [showEventEditDialog, setShowEventEditDialog] = useState(false);
+  const [showEventCreateDialog, setShowEventCreateDialog] = useState(false);
 
-    const dayPropGetter = (date) => ({
-        ...(moment(date).day() === 0 && {
-            style: {
-                backgroundColor: "#fee2e2", // red for Sunday
-            },
-        }),
+  // Window Size
+  const windowSize = useWindowSize();
+
+  // Add Event
+
+  const handleShowEventCreateDialog = (slotInfo) => {
+    // Cek jika slotInfo start dan end ada, jika tidak set ke null
+    const startDate = slotInfo.start ? new Date(slotInfo.start) : null;
+    const endDate = slotInfo.end ? new Date(slotInfo.end) : null;
+
+    setEvent({
+      start: startDate
+        ? new Date(startDate.setDate(startDate.getDate() + 1))
+            .toISOString()
+            .split("T")[0]
+        : null,
+      end: endDate ? endDate.toISOString().split("T")[0] : null,
     });
 
-    const handleSubmitForm = () => {
-        if (selectedEvent) {
-            // Edit the existing event
-            setMyEvents((prevEvents) =>
-                prevEvents.map((event) =>
-                    event.title === selectedEvent.title ? selectedEvent : event
-                )
-            );
-        } else {
-            // Add new event (example: push new event logic)
-            setMyEvents([
-                ...myEvents,
-                {
-                    title: "New Event",
-                    start: new Date(),
-                    end: new Date(),
-                    type: "Poli",
-                    present: "Hadir",
-                },
-            ]);
-        }
-        setShowDialog(false); // Close the dialog after submitting
-    };
+    setShowEventCreateDialog(true);
+  };
 
-    return (
-        <React.Fragment>
-            {/* Header */}
-            <div className="flex items-end justify-end">
-                <div>
-                    {/* Add Activity Button */}
-                    <button
-                        type="button"
-                        className="px-4 py-1 text-sm font-semibold text-white bg-black rounded"
-                        onClick={handleAddActivity}
-                    >
-                        Add Activity
-                    </button>
-                </div>
-            </div>
+  // Show Event
+  const handleShowEvent = useCallback((event) => {
+    setShowEventEditDialog(true);
+    setEvent(event);
+  }, []);
 
-            {/* Calendar */}
-            <div className="flex flex-col w-full h-full overflow-auto">
-                <div className="p-2">
-                    <Calendar
-                        dayLayoutAlgorithm="no-overlap"
-                        localizer={momentLocalizer(moment)}
-                        style={{ height: 800 }}
-                        events={myEvents}
-                        dayPropGetter={dayPropGetter}
-                        views={["month", "week", "day", "agenda"]}
-                        components={{
-                            event: (props) => (
-                                <CustomEvent {...props} onClick={handleEventClick} />
-                            ), // Pass event click handler
-                        }}
-                    />
-                </div>
-            </div>
+  // Change Sunday to red
+  const dayPropGetter = useCallback(
+    (date) => ({
+      ...(moment(date).day() === 0 && {
+        style: {
+          backgroundColor: "#fee2e2",
+        },
+      }),
+    }),
+    []
+  );
 
-            {/* Color Legend */}
-            <div className="p-4 space-y-2">
-                <div className="flex items-center space-x-2">
-                    <div className="w-4 h-4 bg-blue-900 rounded-full" />
-                    <p className="text-sm font-semibold text-gray-700">Timeline</p>
-                </div>
-                <div className="flex items-center space-x-2">
-                    <div className="w-4 h-4 bg-green-600 rounded-full" />
-                    <p className="text-sm font-semibold text-gray-700">Present</p>
-                </div>
-                <div className="flex items-center space-x-2">
-                    <div className="w-4 h-4 bg-yellow-600 rounded-full" />
-                    <p className="text-sm font-semibold text-gray-700">Wetlab</p>
-                </div>
-                <div className="flex items-center space-x-2">
-                    <div className="w-4 h-4 bg-red-600 rounded-full" />
-                    <p className="text-sm font-semibold text-gray-700">
-                        Day Off / National Holiday
-                    </p>
-                </div>
-            </div>
+  return (
+    <React.Fragment>
+      {/* Header */}
+      <div className="flex items-end justify-end">
+        <div>
+          {/* Add Activity Button */}
+          <button
+            type="button"
+            className="px-4 py-1 text-sm font-semibold text-white bg-black rounded"
+            onClick={() =>
+              handleShowEventCreateDialog({ start: null, end: null })
+            }
+          >
+            Add Activity
+          </button>
+        </div>
+      </div>
 
-            {/* Dialog for Adding/Editing Activity */}
-            <Dialog open={showDialog} onOpenChange={(open) => setShowDialog(open)}>
-                <DialogContent>
-                    <DialogHeader>
-                        <DialogTitle>
-                            {selectedEvent ? "Edit Activity" : "Add Activity"}
-                        </DialogTitle>
-                        <DialogDescription>
-                            {selectedEvent
-                                ? "Edit the details for this activity."
-                                : "Fill out the details for the new activity."}
-                        </DialogDescription>
-                    </DialogHeader>
+      {/* Content */}
+      <div className="flex flex-col w-full h-full overflow-auto">
+        <div className="p-2">
+          <Calendar
+            dayLayoutAlgorithm="no-overlap"
+            localizer={momentLocalizer(moment)}
+            onSelectEvent={handleShowEvent}
+            onSelectSlot={handleShowEventCreateDialog}
+            selectable
+            style={{ height: 800 }}
+            events={myEvents}
+            dayPropGetter={dayPropGetter}
+            components={{
+              event: CustomEvent,
+            }}
+          />
+        </div>
 
-                    <div className="space-y-4">
-                        {/* Activity Selection */}
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700">
-                                Activity
-                            </label>
-                            <Select
-                                value={selectedEvent ? selectedEvent.present : ""}
-                                onValueChange={(value) =>
-                                    setSelectedEvent((prev) => ({ ...prev, present: value }))
-                                }
-                            >
-                                <SelectTrigger>
-                                    <SelectValue placeholder="Select an activity" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    {["Cuti", "Wetlab", "Sakit"].map((activity) => (
-                                        <SelectItem key={activity} value={activity}>
-                                            {activity}
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
-                        </div>
+        <div className="p-2">
+          <div className="flex items-center space-x-2">
+            <div className="w-4 h-4 bg-blue-900 rounded-full" />
+            <p className="text-sm font-semibold text-gray-700">Timeline</p>
+          </div>
+          <div className="flex items-center space-x-2">
+            <div className="w-4 h-4 bg-green-600 rounded-full" />
+            <p className="text-sm font-semibold text-gray-700">Present</p>
+          </div>
+          <div className="flex items-center space-x-2">
+            <div className="w-4 h-4 bg-yellow-600 rounded-full" />
+            <p className="text-sm font-semibold text-gray-700">Wetlab</p>
+          </div>
+          <div className="flex items-center space-x-2">
+            <div className="w-4 h-4 bg-red-600 rounded-full" />
+            <p className="text-sm font-semibold text-gray-700">
+              Day Off / National Holiday
+            </p>
+          </div>
+        </div>
+      </div>
 
-                        {/* Conditional Fields based on Activity */}
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700">
-                                Name
-                            </label>
-                            <Input
-                                type="text"
-                                value={selectedEvent ? selectedEvent.title : ""}
-                                onChange={(e) =>
-                                    setSelectedEvent((prev) => ({
-                                        ...prev,
-                                        title: e.target.value,
-                                    }))
-                                }
-                                placeholder="Enter activity name"
-                            />
-                        </div>
+      {/* Edit Event */}
+      {showEventEditDialog && (
+        <EventEditDialog
+          show={showEventEditDialog}
+          setShow={setShowEventEditDialog}
+          size="sm"
+          event={event}
+          setEvent={setEvent}
+          doctors={doctors}
+        />
+      )}
 
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700">
-                                Supervising Doctor
-                            </label>
-                            <Select
-                                value={selectedEvent ? selectedEvent.doctor : ""}
-                                onValueChange={(value) =>
-                                    setSelectedEvent((prev) => ({ ...prev, doctor: value }))
-                                }
-                            >
-                                <SelectTrigger>
-                                    <SelectValue placeholder="Select a doctor" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    {["Dr. John Doe", "Dr. Jane Smith", "Dr. Alex Lee"].map(
-                                        (doctor) => (
-                                            <SelectItem key={doctor} value={doctor}>
-                                                {doctor}
-                                            </SelectItem>
-                                        )
-                                    )}
-                                </SelectContent>
-                            </Select>
-                        </div>
+      {/* Create Event */}
+      {showEventCreateDialog && (
+        <EventCreateDialog
+          show={showEventCreateDialog}
+          setShow={setShowEventCreateDialog}
+          size="sm"
+          event={event}
+          setEvent={setEvent}
+          doctors={doctors}
+          fellowship={props.fellowship}
+        />
+      )}
+    </React.Fragment>
+  );
+};
 
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700">
-                                Start Date
-                            </label>
-                            <Input
-                                type="date"
-                                value={
-                                    selectedEvent
-                                        ? moment(selectedEvent.start).format("YYYY-MM-DD")
-                                        : ""
-                                }
-                                onChange={(e) =>
-                                    setSelectedEvent((prev) => ({
-                                        ...prev,
-                                        start: new Date(e.target.value),
-                                    }))
-                                }
-                            />
-                        </div>
+// // Render Layout
+// Timeline.layout = (page) => {
+//     return <Fellowship children={page} />;
+// };
 
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700">
-                                End Date
-                            </label>
-                            <Input
-                                type="date"
-                                value={
-                                    selectedEvent
-                                        ? moment(selectedEvent.end).format("YYYY-MM-DD")
-                                        : ""
-                                }
-                                onChange={(e) =>
-                                    setSelectedEvent((prev) => ({
-                                        ...prev,
-                                        end: new Date(e.target.value),
-                                    }))
-                                }
-                            />
-                        </div>
-                    </div>
-
-                    <DialogFooter>
-                        <Button
-                            variant="outline"
-                            onClick={() => setShowDialog(false)}
-                            className="px-4 text-gray-700"
-                        >
-                            Close
-                        </Button>
-                        <Button
-                            onClick={handleSubmitForm}
-                            className="px-4 text-white bg-green-600"
-                        >
-                            Save
-                        </Button>
-                    </DialogFooter>
-                </DialogContent>
-            </Dialog>
-        </React.Fragment>
-    );
+const CustomEvent = ({ event }) => {
+  return (
+    <React.Fragment>
+      {event.type === "Poli" ? (
+        event.present === "Hadir" ? (
+          <p className="px-1 py-0.5 text-sm font-semibold text-white bg-green-600 rounded">
+            {event.title}
+          </p>
+        ) : event.present === "Cuti" || event.present === "Sakit" ? (
+          <p className="px-1 py-0.5 text-sm font-semibold text-white bg-red-600 rounded">
+            {event.title}
+          </p>
+        ) : (
+          <p className="px-1 py-0.5 text-sm font-semibold text-white bg-blue-900 rounded">
+            {event.title}
+          </p>
+        )
+      ) : event.type === "National Holiday" ? (
+        <p className="px-1 py-0.5 text-sm font-semibold text-white bg-red-600 rounded">
+          {event.title}
+        </p>
+      ) : (
+        <p className="px-1 py-0.5 text-sm font-semibold text-white bg-yellow-600 rounded">
+          {event.title}
+        </p>
+      )}
+    </React.Fragment>
+  );
 };
 
 export default Timeline;

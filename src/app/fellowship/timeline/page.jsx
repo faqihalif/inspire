@@ -1,5 +1,7 @@
 "use client";
 
+import "@/styles/react-big-calendar.css"
+
 import {
   Breadcrumb,
   BreadcrumbItem,
