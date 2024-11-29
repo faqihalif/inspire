@@ -11,6 +11,7 @@ import { useForm } from "react-hook-form"
 import { z } from "zod"
 import axios from "axios"
 import { Loader2 } from "lucide-react"
+import { signIn } from "next-auth/react"
 
 export default function Page() {
     const [submitLoading, setSubmitLoading] = useState(false)
@@ -33,16 +34,7 @@ export default function Page() {
     })
 
     const onSubmit = (values) => {
-        setSubmitLoading(true)
-        axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/login`, values)
-            .then(response => {
-                setSubmitLoading(false)
-                console.log(response.data)
-            })
-            .catch(err => {
-                setSubmitLoading(false)
-                console.log(err.response)
-            })
+        signIn("credentials", values)
     }
 
     return (

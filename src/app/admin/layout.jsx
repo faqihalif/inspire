@@ -1,10 +1,12 @@
 import AppSidebar from "@/components/layout/admin/app-sidebar"
 import AppUserNav from "@/components/layout/admin/app-usernav"
-
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar"
 import { Separator } from "@/components/ui/separator"
+import { auth } from "@/auth"
 
-export default function Layout({ children }) {
+export default async function Layout({ children }) {
+    const session = await auth()
+    console.log(session)
     return (
         <SidebarProvider className="w-full max-h-screen">
             <AppSidebar />

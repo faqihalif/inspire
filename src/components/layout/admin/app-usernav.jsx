@@ -16,6 +16,7 @@ import {
     DropdownMenuShortcut,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { signOut } from "next-auth/react"
 
 export default function AppUserNav() {
     return (
@@ -47,7 +48,7 @@ export default function AppUserNav() {
                     </DropdownMenuItem>
                 </DropdownMenuGroup>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem>
+                <DropdownMenuItem onClick={() => signOut("credentials")}>
                     Log out
                 </DropdownMenuItem>
             </DropdownMenuContent>
