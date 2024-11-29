@@ -6,6 +6,9 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     pages: {
         signIn: "/login",
     },
+    session: {
+        strategy: 'jwt',
+    },
     providers: [
         Credentials({
             credentials: {
@@ -29,9 +32,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             },
         }),
     ],
-    session: {
-        strategy: 'jwt',
-    },
     callbacks: {
         async jwt({ token, user }) {
             if (user) {
@@ -49,17 +49,47 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         },
         authorized({ auth, request: { nextUrl } }) {
             const isLogin = !!auth?.user
-            
-            // console.log(isLogin)
 
-            const protectedRoutes = ["/", "/admin/dashboard", "/admin/employees"]
+            // admin
+            if (nextUrl.pathname.startsWith("/admin")) {
+                if (isLogin) {
+                    if (auth.user.role == "fellowship") {
+                        return Response.redirect(new URL("/fellowship/my-profile", nextUrl))
+                    }
+                    if (auth.user.role == "observership") {
+                        return Response.redirect(new URL("/observership", nextUrl))
+                    }
+                } else {
+                    return Response.redirect(new URL("/login", nextUrl))
+                }
+            }
 
-            if (!isLogin && protectedRoutes.includes(nextUrl.pathname)) {
-                return Response.redirect(new URL("/login", nextUrl))
+            // fellowship
+            if (nextUrl.pathname.startsWith("/fellowship")) {
+                if (isLogin) {
+                    if (auth.user.role == "admin") {
+                        return Response.redirect(new URL("/admin/dashboard", nextUrl))
+                    }
+                    if (auth.user.role == "observership") {
+                        return Response.redirect(new URL("/observership", nextUrl))
+                    }
+                } else {
+                    return Response.redirect(new URL("/login", nextUrl))
+                }
             }
 
             if (isLogin && nextUrl.pathname.startsWith("/login")) {
-                return Response.redirect(new URL("/admin/dashboard", nextUrl))
+                if (auth.user.role == 'admin') {
+                    return Response.redirect(new URL("/admin/dashboard", nextUrl))
+                }
+
+                if (auth.user.role == 'fellowship') {
+                    return Response.redirect(new URL("/fellowship/my-profile", nextUrl))
+                }
+
+                if (auth.user.role == 'observership') {
+                    return Response.redirect(new URL("/observership", nextUrl))
+                }
             }
 
             return true

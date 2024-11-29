@@ -12,11 +12,15 @@ import {
 import { Skeleton } from "@/components/ui/skeleton"
 import DataTable from "@/components/ui/data-table"
 import { Button } from "@/components/ui/button"
+import ErrorComponent from "@/components/ui/error-component"
 import useWindowSize from "@/hooks/use-window-size"
 import axios from "axios"
+import { useSession } from "next-auth/react"
 
 export default function Page() {
-    const [loading, setLoading] = useState(true)
+    const session = useSession()
+    const [loading, setLoading] = useState(false)
+    const [showEmployee, setShowEmployee] = useState(false)
     const [employees, setEmployees] = useState([])
 
     // window size
@@ -86,14 +90,39 @@ export default function Page() {
         }
     ]
 
-    useEffect(() => {
-        axios.get('https://inforisdik.jec.co.id/api/employee')
-            .then(response => {
-                setLoading(false)
-                return setEmployees(response.data)
-            })
+    const handleRefreshEmployee = () => {
+        setLoading(true)
+        axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/employees`,
+            {
+                headers: { Authorization: `Bearer ${session.data?.user?.bearer}` }
+            }
+        ).then(response => {
+            setEmployees(response.data)
+            setShowEmployee(true)
+            setLoading(false)
+        })
             .catch(err => {
                 console.log(err.response.data)
+                setShowEmployee(false)
+                setLoading(false)
+            })
+    }
+    
+    useEffect(() => {
+        setLoading(true)
+        axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/employees`,
+            {
+                headers: { Authorization: `Bearer ${session.data?.user?.bearer}` }
+            }
+        ).then(response => {
+            setEmployees(response.data)
+            setShowEmployee(true)
+            setLoading(false)
+        })
+            .catch(err => {
+                console.log(err.response.data)
+                setShowEmployee(false)
+                setLoading(false)
             })
     }, [])
 
@@ -116,21 +145,24 @@ export default function Page() {
                         </div>
                     </div>
                 ) : (
-
-                    <DataTable
-                        columns={columns}
-                        data={employees}
-                        download
-                        filterPerColumn
-                    // fixed
-                    // selectable
-                    // approve={handleApproveDataTable}
-                    // delete={handleDeleteDataTable}
-                    >
-                        <Button onClick={() => console.log('clicked')}>
-                            Add Employee 2
-                        </Button>
-                    </DataTable>
+                    showEmployee ? (
+                        <DataTable
+                            columns={columns}
+                            data={employees}
+                            download
+                            filterPerColumn
+                        // fixed
+                        // selectable
+                        // approve={handleApproveDataTable}
+                        // delete={handleDeleteDataTable}
+                        >
+                            <Button onClick={() => console.log('clicked')}>
+                                Add Employee
+                            </Button>
+                        </DataTable>
+                    ) : (
+                        <ErrorComponent action={handleRefreshEmployee} />
+                    )
                 )
             }
         </div>
