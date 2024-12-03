@@ -3,11 +3,13 @@ import Credentials from "next-auth/providers/credentials"
 import axios from "axios"
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
+    secret: process.env.AUTH_SECRET,
     pages: {
         signIn: "/login",
     },
     session: {
-        strategy: 'jwt',
+        strategy: "jwt",
+        maxAge: 3 * 60 * 60
     },
     providers: [
         Credentials({
@@ -16,19 +18,16 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                 password: {},
             },
             async authorize(credentials) {
-                let user = null
                 let response = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/login`, {
                     email: credentials.email,
                     password: credentials.password,
                 })
 
-                user = response.data.data
-
-                if (!user) {
-                    throw new Error("Invalid credentials.")
+                if (!response.data.data) {
+                    return false
                 }
 
-                return user
+                return response.data.data
             },
         }),
     ],
@@ -39,7 +38,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                 token.name = user.user.name
                 token.email = user.user.email
                 token.role = user.user.role
-                token.bearer = user.token
+                token.bearer = user.token.bearer
+                token.expired = user.token.expired
             }
             return token
         },
@@ -79,15 +79,15 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             }
 
             if (isLogin && nextUrl.pathname.startsWith("/login")) {
-                if (auth.user.role == 'admin') {
+                if (auth.user.role == "admin") {
                     return Response.redirect(new URL("/admin/dashboard", nextUrl))
                 }
 
-                if (auth.user.role == 'fellowship') {
+                if (auth.user.role == "fellowship") {
                     return Response.redirect(new URL("/fellowship/my-profile", nextUrl))
                 }
 
-                if (auth.user.role == 'observership') {
+                if (auth.user.role == "observership") {
                     return Response.redirect(new URL("/observership", nextUrl))
                 }
             }

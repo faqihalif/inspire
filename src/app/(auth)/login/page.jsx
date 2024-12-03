@@ -6,14 +6,16 @@ import Link from "next/link"
 import { Input } from "@/components/ui/input"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { Button } from "@/components/ui/button"
+import { useToast } from "@/hooks/use-toast"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
-import axios from "axios"
 import { Loader2 } from "lucide-react"
 import { signIn } from "next-auth/react"
+import { redirect } from "next/navigation"
 
 export default function Page() {
+    const { toast } = useToast()
     const [submitLoading, setSubmitLoading] = useState(false)
 
     // validation
@@ -29,12 +31,34 @@ export default function Page() {
         resolver: zodResolver(validation),
         defaultValues: {
             email: '',
-            password: ''
+            password: '',
+            redirect: false
         }
     })
 
-    const onSubmit = (values) => {
-        signIn("credentials", values)
+    const onSubmit = async (values) => {
+        setSubmitLoading(true)
+        let response = await signIn(
+            "credentials",
+            {
+                email: values.email,
+                password: values.password,
+                redirect: false,
+            }
+        )
+
+        if (!response.error) {
+            setSubmitLoading(false)
+            redirect("/admin/dashboard")
+        } else {
+            toast({
+                title: "Error",
+                description: "Username or password is wrong",
+                variant: 'destructive',
+                duration: 3000
+            })
+            setSubmitLoading(false)
+        }
     }
 
     return (

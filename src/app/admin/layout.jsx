@@ -6,7 +6,6 @@ import { auth } from "@/auth"
 
 export default async function Layout({ children }) {
     const session = await auth()
-    // console.log(session)
 
     return (
         <SidebarProvider className="w-full max-h-screen">

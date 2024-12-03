@@ -16,25 +16,28 @@ import {
     DropdownMenuShortcut,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { useSession } from "next-auth/react"
 import { signOut } from "next-auth/react"
 
 export default function AppUserNav() {
+    const { data } = useSession()
+
     return (
         <DropdownMenu>
             <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="relative w-8 h-8 rounded-full">
                     <Avatar className="w-8 h-8">
                         <AvatarImage src="/avatars/01.png" alt="@shadcn" />
-                        <AvatarFallback>SC</AvatarFallback>
+                        <AvatarFallback>{data?.user?.name}</AvatarFallback>
                     </Avatar>
                 </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent className="w-56" align="end" forceMount>
                 <DropdownMenuLabel className="font-normal">
                     <div className="flex flex-col space-y-1">
-                        <p className="text-sm font-medium leading-none">shadcn</p>
+                        <p className="text-sm font-medium leading-none">{data?.user?.name}</p>
                         <p className="text-xs leading-none text-muted-foreground">
-                            m@example.com
+                            {data?.user?.email}
                         </p>
                     </div>
                 </DropdownMenuLabel>
