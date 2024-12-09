@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState } from 'react'
+import React, { useState } from "react"
 import Image from "next/image"
 import Link from "next/link"
 import { Input } from "@/components/ui/input"
@@ -23,15 +23,15 @@ export default function Page() {
         email: z.string().email({
             message: "Must be a valid email",
         }),
-        password: z.string().min(1, { message: 'Required' }),
+        password: z.string().min(1, { message: "Required" }),
     })
 
     // form
     const form = useForm({
         resolver: zodResolver(validation),
         defaultValues: {
-            email: '',
-            password: '',
+            email: "",
+            password: "",
             redirect: false
         }
     })
@@ -51,13 +51,39 @@ export default function Page() {
             setSubmitLoading(false)
             redirect("/admin/dashboard")
         } else {
-            toast({
-                title: "Error",
-                description: "Username or password is wrong",
-                variant: 'destructive',
-                duration: 3000
-            })
-            setSubmitLoading(false)
+            if (response.code == "UserNotFound") {
+                toast({
+                    title: "Error",
+                    description: "User not found",
+                    variant: "destructive",
+                    duration: 3000
+                })
+                setSubmitLoading(false)
+            } else if (response.code == "InvalidCredentials") {
+                toast({
+                    title: "Error",
+                    description: "Username or password is wrong",
+                    variant: "destructive",
+                    duration: 3000
+                })
+                setSubmitLoading(false)
+            } else if (response.code == "UserInactive") {
+                toast({
+                    title: "Error",
+                    description: "User is inactive, please contact system administrator",
+                    variant: "destructive",
+                    duration: 3000
+                })
+                setSubmitLoading(false)
+            } else {
+                toast({
+                    title: "Error",
+                    description: "Something went wrong, please try again later",
+                    variant: "destructive",
+                    duration: 3000
+                })
+                setSubmitLoading(false)
+            }
         }
     }
 
@@ -72,7 +98,7 @@ export default function Page() {
                             height={0}
                             alt="INSPIRE"
                             sizes="100vw"
-                            style={{ width: 'auto', height: '64px' }}
+                            style={{ width: "auto", height: "64px" }}
                             priority
                         />
                     </Link>

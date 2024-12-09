@@ -2,6 +2,19 @@ import NextAuth from "next-auth"
 import Credentials from "next-auth/providers/credentials"
 import axios from "axios"
 
+import { CredentialsSignin } from "@auth/core/errors"
+class UserNotFound extends CredentialsSignin {
+    code = "UserNotFound"
+}
+
+class InvalidCredentials extends CredentialsSignin {
+    code = "InvalidCredentials"
+}
+
+class UserInactive extends CredentialsSignin {
+    code = "UserInactive"
+}
+
 export const { handlers, signIn, signOut, auth } = NextAuth({
     secret: process.env.AUTH_SECRET,
     pages: {
@@ -18,13 +31,21 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                 password: {},
             },
             async authorize(credentials) {
-                let response = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/login`, {
+                let response = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/login`, {
                     email: credentials.email,
                     password: credentials.password,
                 })
 
                 if (!response.data.data) {
-                    return false
+                    if (response.data.message == "User not found") {
+                        throw new UserNotFound()
+                    } else if (response.data.message == "Email or password is wrong") {
+                        throw new InvalidCredentials()
+                    } else if (response.data.message == "User is inactive, please contact system administrator") {
+                        throw new UserInactive()
+                    } else {
+                        throw new CredentialsSignin()
+                    }
                 }
 
                 return response.data.data
@@ -38,8 +59,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                 token.name = user.user.name
                 token.email = user.user.email
                 token.role = user.user.role
-                token.bearer = user.token.bearer
-                token.expired = user.token.expired
+                token.token = user.token
             }
             return token
         },

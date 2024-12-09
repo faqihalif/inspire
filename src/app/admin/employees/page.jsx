@@ -112,7 +112,7 @@ export default function Page() {
         setLoading(true)
         axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/employees`,
             {
-                headers: { Authorization: `Bearer ${session.data?.user?.bearer}` }
+                headers: { Authorization: `Bearer ${session.data?.user?.token}` }
             }
         ).then(response => {
             setEmployees(response.data)

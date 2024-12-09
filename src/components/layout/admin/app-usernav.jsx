@@ -16,11 +16,33 @@ import {
     DropdownMenuShortcut,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { useToast } from "@/hooks/use-toast"
 import { useSession } from "next-auth/react"
 import { signOut } from "next-auth/react"
+import axios from "axios"
 
 export default function AppUserNav() {
+    const { toast } = useToast()
     const { data } = useSession()
+
+    const handleLogout = () => {
+        axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/logout`, {},
+            {
+                headers: { Authorization: `Bearer ${data?.user?.token}` }
+            }
+        ).then(() => {
+            signOut("credentials")
+        }).catch(() => {
+            toast({
+                title: "Error",
+                description: "Cant log out, please try again later",
+                variant: 'destructive',
+                duration: 3000
+            })
+        }).finally(() => {
+            signOut("credentials")
+        })
+    }
 
     return (
         <DropdownMenu>
@@ -28,7 +50,7 @@ export default function AppUserNav() {
                 <Button variant="ghost" className="relative w-8 h-8 rounded-full">
                     <Avatar className="w-8 h-8">
                         <AvatarImage src="/avatars/01.png" alt="@shadcn" />
-                        <AvatarFallback>{data?.user?.name}</AvatarFallback>
+                        <AvatarFallback>{data?.user?.name.charAt(0)}</AvatarFallback>
                     </Avatar>
                 </Button>
             </DropdownMenuTrigger>
@@ -51,7 +73,7 @@ export default function AppUserNav() {
                     </DropdownMenuItem>
                 </DropdownMenuGroup>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={() => signOut("credentials")}>
+                <DropdownMenuItem onClick={() => handleLogout()}>
                     Log out
                 </DropdownMenuItem>
             </DropdownMenuContent>
